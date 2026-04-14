@@ -6,25 +6,6 @@ import Projects from './components/sections/Projects';
 import Contact from './components/sections/Contact';
 import Footer from './components/sections/Footer';
 
-function useScrollReveal() {
-  useEffect(() => {
-    const reveals = Array.from(document.querySelectorAll('.reveal'));
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.15 }
-    );
-
-    reveals.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
-}
 
 export default function App() {
   const [dark, setDark] = useState(true);
@@ -61,8 +42,6 @@ export default function App() {
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  useScrollReveal();
 
   const progressStyle = useMemo(() => ({ width: `${progress}%` }), [progress]);
 

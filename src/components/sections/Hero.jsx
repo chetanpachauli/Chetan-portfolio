@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 const titles = ['MERN Stack Developer', 'Data Analyst', 'UI/UX Enthusiast', 'Full Stack Builder'];
 const techChips = ['React', 'Node.js', 'Power BI', 'MongoDB'];
 
-export default function Hero({ dark, photoSrc = '/assets/profile.jpg' }) {
+export default function Hero({ dark, photoSrc = '/assets/profile.svg' }) {
   const [typed, setTyped] = useState('');
 
   useEffect(() => {

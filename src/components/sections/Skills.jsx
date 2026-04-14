@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useMemo, useState } from 'react';
 import { SKILLS } from '../../data/portfolioData';
 
 const TAB_LABELS = {
+  all: '🧩 All',
   frontend: '⚛️ Frontend',
   backend: '⚡ Backend',
   data: '📊 Data',
@@ -10,30 +11,26 @@ const TAB_LABELS = {
 
 export default function Skills() {
   const [activeTab, setActiveTab] = useState('frontend');
-  const [animated, setAnimated] = useState({});
-  const sectionRef = useRef(null);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !animated[activeTab]) {
-          setAnimated((prev) => ({ ...prev, [activeTab]: true }));
-        }
-      },
-      { threshold: 0.2 }
-    );
+  const filteredSkills = useMemo(() => {
+    const requestedKey = activeTab?.toString().trim().toLowerCase() || 'frontend';
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
+    if (requestedKey === 'all') {
+      return Object.values(SKILLS).flat();
     }
 
-    return () => observer.disconnect();
-  }, [activeTab, animated]);
+    if (SKILLS[requestedKey]) {
+      return SKILLS[requestedKey];
+    }
+
+    const fallbackKey = Object.keys(SKILLS).find((key) => key.toLowerCase() === requestedKey);
+    return fallbackKey ? SKILLS[fallbackKey] : Object.values(SKILLS).flat();
+  }, [activeTab]);
 
   return (
-    <section id="skills" ref={sectionRef} className="bg-[var(--surface)] px-6 py-24 lg:px-8">
+    <section id="skills" className="bg-[var(--surface)] px-6 py-24 lg:px-8">
       <div className="mx-auto max-w-7xl">
-        <p className="section-label reveal">02. TECHNICAL ARSENAL</p>
+        <p className="section-label">02. TECHNICAL ARSENAL</p>
         <h2 className="section-title reveal mb-3">
           Skills &amp; <span className="text-cyan">Technologies</span>
         </h2>
@@ -41,17 +38,13 @@ export default function Skills() {
           From pixel-perfect frontends to robust APIs and powerful data dashboards.
         </p>
 
-        <div className="reveal mb-8 flex flex-wrap gap-3">
+        <div className="mb-8 flex flex-wrap gap-3">
           {Object.entries(TAB_LABELS).map(([key, label]) => (
             <button
               key={key}
-              onClick={() => {
-                setActiveTab(key);
-                setAnimated((prev) => ({ ...prev, [key]: false }));
-                window.setTimeout(() => setAnimated((prev) => ({ ...prev, [key]: true })), 50);
-              }}
-              className={`filter-btn ${activeTab === key ? 'active' : ''}`}
               type="button"
+              onClick={() => setActiveTab(key)}
+              className={`filter-btn ${activeTab === key ? 'active' : ''}`}
             >
               {label}
             </button>
@@ -59,11 +52,16 @@ export default function Skills() {
         </div>
 
         <div className="skills-grid grid gap-4 sm:grid-cols-2 xl:grid-cols-2">
-          {SKILLS[activeTab].map((skill, index) => (
+          {filteredSkills.map((skill, index) => (
             <div
-              key={`${skill.name}-${activeTab}`}
-              className="reveal rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface2)] p-5"
-              style={{ animationDelay: `${index * 0.08}s` }}
+              key={`${skill.name}-${index}`}
+              className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface2)] p-5"
+              style={{
+                opacity: 1,
+                transform: 'translateY(0)',
+                transition: 'opacity 0.4s ease, transform 0.4s ease',
+                transitionDelay: `${index * 0.04}s`,
+              }}
             >
               <div className="mb-3 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-3">
@@ -78,7 +76,7 @@ export default function Skills() {
               <div className="h-1 rounded-full bg-[var(--border)] overflow-hidden">
                 <div
                   className="skill-fill h-full rounded-full bg-gradient-to-r from-cyan to-purple"
-                  style={{ width: animated[activeTab] ? `${skill.level}%` : '0%', transitionDelay: `${0.2 + index * 0.1}s` }}
+                  style={{ width: `${skill.level}%` }}
                 />
               </div>
             </div>
